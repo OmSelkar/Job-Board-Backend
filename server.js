@@ -13,6 +13,11 @@ import userRoutes from "./routes/userRoutes.js";
 import { verifyJwt } from "./middlewares/verifyJwt.js";
 import userAuthRoutes from "./routes/userAuthRoutes.js";
 
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.CLIENT_URL
+].map(origin => origin?.replace(/\/$/, ""));
 // Initialize Express
 const app = express();
 
@@ -24,15 +29,20 @@ await connectCloudinary();
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+      if (!origin) return callback(null, true); // allow Postman / server-to-server
+
+      const cleanOrigin = origin.replace(/\/$/, "");
+
+      if (allowedOrigins.includes(cleanOrigin)) {
         callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        callback(new Error(`CORS blocked: ${origin}`));
       }
     },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
