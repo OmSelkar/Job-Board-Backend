@@ -16,12 +16,19 @@ import userAuthRoutes from "./routes/userAuthRoutes.js";
 // Initialize Express
 const app = express();
 
+
 // Connect to database
 await connectDB();
 await connectCloudinary();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://your-frontend.vercel.app"
+  ],
+  credentials: true
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
