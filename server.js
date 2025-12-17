@@ -16,19 +16,17 @@ import userAuthRoutes from "./routes/userAuthRoutes.js";
 // Initialize Express
 const app = express();
 
-
 // Connect to database
 await connectDB();
 await connectCloudinary();
 
 // Middleware
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://your-frontend.vercel.app"
-  ],
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -43,12 +41,12 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 
 // FIXED: Separate authentication routes from protected routes
 // Public routes (no authentication)
-app.use("/api/auth", userAuthRoutes);     // LOGIN & REGISTER: /api/auth/login, /api/auth/register
-app.use("/api/jobs", jobRoutes);          // Public job listings
+app.use("/api/auth", userAuthRoutes); // LOGIN & REGISTER: /api/auth/login, /api/auth/register
+app.use("/api/jobs", jobRoutes); // Public job listings
 
 // Protected routes (require authentication)
-app.use("/api/users", verifyJwt, userRoutes);    // USER PROFILE: /api/users/user, /api/users/profile, etc.
-app.use("/api/company", companyRoutes);           // Company routes
+app.use("/api/users", verifyJwt, userRoutes); // USER PROFILE: /api/users/user, /api/users/profile, etc.
+app.use("/api/company", companyRoutes); // Company routes
 
 // Debug route to test JWT
 app.get("/api/test-auth", verifyJwt, (req, res) => {
